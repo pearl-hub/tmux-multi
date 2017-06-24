@@ -37,12 +37,12 @@ usage() {
     echo
     echo -e "Options:"
     echo -e "  -m, --max-panes-per-window NUM  Set the maximum number"
-	echo -e "                                  of panes per window (default 6)."
-	echo -e "  -l, --layout LAYOUT             Set the layout (default tiled)."
-	echo -e "  -f, --file-commands FILE        File containing the commands"
-	echo -e "  -k, --keep-panes                Keep the panes open after command execution"
-	echo -e "                                  to run in separate panes (default stdin)."
-	echo
+    echo -e "                                  of panes per window (default 6)."
+    echo -e "  -l, --layout LAYOUT             Set the layout (default tiled)."
+    echo -e "  -f, --file-commands FILE        File containing the commands"
+    echo -e "  -k, --keep-panes                Keep the panes open after command execution"
+    echo -e "                                  to run in separate panes (default stdin)."
+    echo
     echo -e "  h[elp], [-h], [--help]          Show this help message."
     echo
     return 0
@@ -68,19 +68,19 @@ usage() {
 #######################################
 function parse_arguments(){
     OPT_MPPW=""
-	OPT_LAYOUT=""
-	OPT_FILE=""
-	OPT_KEEP_PANES=false
+    OPT_LAYOUT=""
+    OPT_FILE=""
+    OPT_KEEP_PANES=false
     OPT_HELP=false
     COMMAND_ARGS=""
 
-	while [[ -n $1 ]]
+    while [[ -n $1 ]]
     do
     case "$1" in
         -m|--max-panes-per-window) shift; OPT_MPPW="$1"; shift ;;
         -l|--layout) shift; OPT_LAYOUT="$1"; shift ;;
-		-f|--file-commands) shift; OPT_FILE="$1"; shift ;;
-		-k|--keep-panes) shift; OPT_KEEP_PANES=true ;;
+        -f|--file-commands) shift; OPT_FILE="$1"; shift ;;
+        -k|--keep-panes) shift; OPT_KEEP_PANES=true ;;
         help|h|-h|--help) OPT_HELP=true ; shift ;;
         --) shift ; break ;;
         -*) die "Invalid option $1" ;;
