@@ -1,0 +1,168 @@
+#!/usr/bin/env bash
+
+set -e
+
+[ -z "$PEARL_ROOT" ] && { echo "Error: The variable PEARL_ROOT must be specified in order to run this script."; exit 1; }
+[ -d "$PEARL_ROOT" ] || { echo "Error: The value in variable PEARL_ROOT is not a directory."; exit 2; }
+
+source $PEARL_ROOT/lib/utils/osx-compat.sh
+# Update PATH for OSX
+pearl_update_path
+source "${PEARL_ROOT}/lib/utils/utils.sh"
+
+CMD_ROOT="${CMD_ROOT:-$(readlink -f $(dirname $(readlink -f "$0"))/..)}"
+
+source "${CMD_ROOT}/lib/core.sh"
+
+CMD=tmux-multi
+DESCRIPTION="Run commands over multiple Tmux panes/windows."
+
+#######################################
+# Provide the usage information.
+#
+# Globals:
+#   CMD (RO)          :  The name of the program.
+#   DESCRIPTION (RO)  :  The description of the program.
+#   CMD_ROOT (RO)     :  The location of the program.
+# Arguments:
+#   None
+# Returns:
+#   0
+# Output:
+#   The usage helper.
+#######################################
+usage() {
+    echo -e "$CMD: $DESCRIPTION"
+    echo -e "Usage: $CMD [options]"
+    echo
+    echo -e "Options:"
+    echo -e "  -m, --max-panes-per-window NUM  Set the maximum number"
+	echo -e "                                  of panes per window (default 6)."
+	echo -e "  -l, --layout LAYOUT             Set the layout (default tiled)."
+	echo -e "  -f, --file-commands FILE        File containing the commands"
+	echo -e "  -k, --keep-panes                Keep the panes open after command execution"
+	echo -e "                                  to run in separate panes (default stdin)."
+	echo
+    echo -e "  h[elp], [-h], [--help]          Show this help message."
+    echo
+    return 0
+}
+
+#######################################
+# Parse the command input.
+#
+# Globals:
+#   OPT_MPPW (WO,bool)       : The max number of panes per windows.
+#   OPT_LAYOUT (WO,bool)     : The layout to use for the panes.
+#   OPT_FILE (WO,bool)       : The file path containing the commands to run.
+#   OPT_KEEP_PANES (WO,bool) : Keep panes after execution.
+#   OPT_HELP (WO,bool)       : true if the command has been specified.
+#   ARGS (WO)                : the non positional arguments.
+# Arguments:
+#   opts ($@)                : the program arguments.
+# Returns:
+#   0                        : Parsing succeeded.
+#   1                        : Parsing did not succeed.
+# Output:
+#   The error message in case parsing will not succeed.
+#######################################
+function parse_arguments(){
+    OPT_MPPW=""
+	OPT_LAYOUT=""
+	OPT_FILE=""
+	OPT_KEEP_PANES=false
+    OPT_HELP=false
+    COMMAND_ARGS=""
+
+	while [[ -n $1 ]]
+    do
+    case "$1" in
+        -m|--max-panes-per-window) shift; OPT_MPPW="$1"; shift ;;
+        -l|--layout) shift; OPT_LAYOUT="$1"; shift ;;
+		-f|--file-commands) shift; OPT_FILE="$1"; shift ;;
+		-k|--keep-panes) shift; OPT_KEEP_PANES=true ;;
+        help|h|-h|--help) OPT_HELP=true ; shift ;;
+        --) shift ; break ;;
+        -*) die "Invalid option $1" ;;
+        *) break ;;
+    esac
+    done
+
+    ARGS=()
+    for arg in "$@"
+    do
+        ARGS+=("$arg")
+    done
+}
+
+#######################################
+# Check if the option provided to the command
+# are correct.
+#
+# Globals:
+#   OPT_MPPW (RO,bool)       : The max number of panes per windows.
+#   OPT_LAYOUT (RO,bool)     : The layout to use for the panes.
+#   OPT_FILE (RO,bool)       : The file path containing the commands to run.
+#   OPT_KEEP_PANES (RO,bool) : Keep panes after execution.
+#   ARGS (RO)                : the non positional arguments.
+# Arguments:
+#   None
+# Returns:
+#   0                        : Checks succeeded.
+#   1                        : Checks did not succeed.
+# Output:
+#   The error message in case checks will not succeed.
+#######################################
+check_cli(){
+    if [[ $OPT_MPPW != "" ]] && $OPT_HELP
+    then
+        die "The options are not allowed together. Run: $CMD --help"
+    fi
+    if [[ $OPT_LAYOUT != "" ]] && $OPT_HELP
+    then
+        die "The options are not allowed together. Run: $CMD --help"
+    fi
+    if [[ $OPT_FILE != "" ]] && $OPT_HELP
+    then
+        die "The options are not allowed together. Run: $CMD --help"
+    fi
+    if $OPT_KEEP_PANES && $OPT_HELP
+    then
+        die "The options are not allowed together. Run: $CMD --help"
+    fi
+
+    if [[ "$ARGS" != "" ]]
+    then
+        die "No arguments are needed. Run: $CMD --help"
+    fi
+    return 0
+}
+
+#######################################
+# Execute the specified command.
+#
+# Globals:
+#   OPT_MPPW (RO,bool)       : The max number of panes per windows.
+#   OPT_LAYOUT (RO,bool)     : The layout to use for the panes.
+#   OPT_FILE (RO,bool)       : The file path containing the commands to run.
+#   OPT_KEEP_PANES (RO,bool) : Keep panes after execution.
+#   OPT_HELP (RO,bool)       : true if the command has been specified.
+#   ARGS (RO)                : the non positional arguments.
+# Arguments:
+#   None
+# Returns:
+#   Depends on the command specified.
+# Output:
+#   Depends on the command specified.
+#######################################
+function execute_operation(){
+    $OPT_HELP && usage && return
+
+    tmux_multi "${OPT_MPPW}" "${OPT_LAYOUT}" "${OPT_FILE}" ${OPT_KEEP_PANES}
+    return 0
+}
+
+parse_arguments "$@"
+check_cli
+execute_operation
+# vim: set ts=4 sw=4 noet:
