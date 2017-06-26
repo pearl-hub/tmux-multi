@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-PKG_LOCATION=$(dirname $0)/../../
-source "$PKG_LOCATION/tests/utils/utils.sh"
+PKG_LOCATION="$(dirname $0)/../.."
+source "$PKG_LOCATION/tests/bunit/utils/utils.sh"
+source "$PKG_LOCATION/tests/test-utils/utils.sh"
 
 pearlSetUp
 source $PKG_LOCATION/buava/lib/utils.sh
@@ -78,4 +79,4 @@ function test_tmux_multi_from_file(){
     assertEquals "$(echo -e "tmux new-window top\ntmux split-window top\ntmux select-layout tiled")" "$(cat $STDOUTF)"
 }
 
-source $(dirname $0)/../utils/shunit2
+source $PKG_LOCATION/tests/bunit/utils/shunit2
