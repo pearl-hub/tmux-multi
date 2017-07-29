@@ -41,9 +41,8 @@ usage() {
     echo -e "  -m, --max-panes-per-window NUM  Set the maximum number"
     echo -e "                                  of panes per window (default 6)."
     echo -e "  -l, --layout LAYOUT             Set the layout (default tiled)."
-    echo -e "  -f, --file-commands FILE        File containing the commands"
-    echo -e "  -k, --keep-panes                Keep the panes open after command execution"
-    echo -e "                                  to run in separate panes (default stdin)."
+    echo -e "  -f, --file-commands FILE        File containing the commands to run (default stdin)."
+    echo -e "  -k, --keep-panes                Keep the panes open after command execution."
     echo
     echo -e "  h[elp], [-h], [--help]          Show this help message."
     echo
